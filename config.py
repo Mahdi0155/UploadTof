@@ -3,17 +3,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BOT_TOKEN = os.getenv('BOT_TOKEN')
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
-OWNER_ID = int(os.getenv('OWNER_ID'))
-
-ADMINS = list(map(int, os.getenv('ADMINS', '').split()))
-
-CHANNEL_ID = int(os.getenv('CHANNEL_ID'))  # آیدی چنلی که فایل‌ها اونجا آپلود میشن
-
-REQUIRED_CHANNELS = os.getenv('REQUIRED_CHANNELS', '').split()
-REQUIRED_CHANNELS = [int(channel) for channel in REQUIRED_CHANNELS if channel]
-
-ADMIN_FILE = os.getenv('ADMIN_FILE')
-
-WEBHOOK_URL = "https://uploadtof.onrender.com/webhook"
+# اصلاح شده برای جلوگیری از ارور
+channel_id = os.getenv("CHANNEL_ID")
+if channel_id is None:
+    raise ValueError("CHANNEL_ID environment variable not set.")
+CHANNEL_ID = int(channel_id)
