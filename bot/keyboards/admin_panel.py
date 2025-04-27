@@ -1,11 +1,10 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def admin_main_menu():
-    kb = [
-        [KeyboardButton("➕ افزودن ادمین جدید"), KeyboardButton("👤 مدیریت ادمین‌ها")],
-        [KeyboardButton("📂 مدیریت فایل‌ها")],
-        [KeyboardButton("🔗 تنظیم عضویت اجباری")],
-        [KeyboardButton("📤 ارسال فایل جدید")],
-        [KeyboardButton("🔙 بازگشت به منو اصلی")]
+    keyboard = [
+        [KeyboardButton(text="➕ افزودن ادمین جدید")],
+        [KeyboardButton(text="📁 مدیریت فایل‌ها")],
+        [KeyboardButton(text="👥 مدیریت اعضا")],
+        [KeyboardButton(text="🔙 بازگشت به منو اصلی")],
     ]
-    return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
