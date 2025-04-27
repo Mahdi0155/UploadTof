@@ -1,21 +1,41 @@
 from aiogram import Router, F
-from aiogram.types import Message
-from database.manage_files import save_file, get_file
+from aiogram.types import Message, FSInputFile
+import os
 
 router = Router()
 
-@router.message(F.document)
-async def handle_document(message: Message):
-    file_id = message.document.file_id
-    file_unique_id = message.document.file_unique_id
-    save_file(file_unique_id, file_id)
-    await message.answer("فایل شما ذخیره شد.")
+UPLOAD_DIR = "uploads"
 
-@router.message(F.text.startswith("/getfile_"))
-async def send_document(message: Message):
-    file_unique_id = message.text.split("_", 1)[1]
-    file_id = get_file(file_unique_id)
-    if file_id:
-        await message.answer_document(file_id)
+@router.message(F.document)
+async def handle_file_upload(message: Message):
+    file = message.document
+    file_path = os.path.join(UPLOAD_DIR, file.file_name)
+
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+    await message.bot.download(file, destination=file_path)
+    await message.answer("فایل شما با موفقیت ذخیره شد.")
+
+@router.message(F.text == "📁 مشاهده فایل‌های من")
+async def list_files(message: Message):
+    if not os.path.exists(UPLOAD_DIR):
+        await message.answer("هیچ فایلی آپلود نشده است.")
+        return
+
+    files = os.listdir(UPLOAD_DIR)
+    if not files:
+        await message.answer("هیچ فایلی موجود نیست.")
     else:
-        await message.answer("فایلی با این شناسه پیدا نشد.")
+        text = "لیست فایل‌ها:\n\n" + "\n".join(files)
+        await message.answer(text)
+
+@router.message(F.text.startswith("دانلود "))
+async def download_file(message: Message):
+    filename = message.text.replace("دانلود ", "").strip()
+    file_path = os.path.join(UPLOAD_DIR, filename)
+
+    if not os.path.exists(file_path):
+        await message.answer("فایلی با این نام پیدا نشد.")
+        return
+
+    await message.answer_document(FSInputFile(file_path))
