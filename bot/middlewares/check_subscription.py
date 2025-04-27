@@ -11,8 +11,10 @@ class CheckSubscriptionMiddleware(BaseMiddleware):
         if not REQUIRED_CHANNELS:
             return await handler(event, data)
 
+        bot = data["bot"]  # اینجا درست بات رو بگیر
+
         for channel_id in REQUIRED_CHANNELS:
-            if not await is_user_in_channel(event.bot, event.from_user.id, channel_id):
+            if not await is_user_in_channel(bot, event.from_user.id, channel_id):
                 await event.answer("⚠️ برای دریافت فایل‌ها، ابتدا باید در کانال‌های ما عضو شوید.")
                 return
         await handler(event, data)
