@@ -1,37 +1,25 @@
-import asyncio
-from aiogram import Bot, Dispatcher
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-from aiohttp import web
-from config import BOT_TOKEN, WEBHOOK_URL
-from bot.handlers import admin, files, subscription
-from bot.middlewares.check_subscription import CheckSubscriptionMiddleware
+import os
+from aiogram import Bot, Dispatcher, types
+from aiogram.utils import executor
+from config import BOT_TOKEN
 
-bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
-dp = Dispatcher()
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher(bot)
 
-dp.update.middleware(CheckSubscriptionMiddleware())
-dp.include_routers(
-    admin.router,
-    files.router,
-    subscription.router,
-)
+# اگر تابع فیلتر خاص داری، مثلا is_user_admin یا غیره، اینجا تعریفش کن یا ایمپورت کن.
 
-async def on_startup(app):
-    await bot.set_webhook(WEBHOOK_URL)
+@dp.message_handler(commands=["start"])
+async def start_handler(message: types.Message):
+    await message.reply("سلام! من آماده‌ام.")
 
-async def on_shutdown(app):
-    await bot.delete_webhook()
+@dp.message_handler(commands=["upload"])
+async def upload_handler(message: types.Message):
+    await message.reply("لطفاً فایلت رو بفرست!")
 
-async def main():
-    app = web.Application()
-    app.on_startup.append(on_startup)
-    app.on_shutdown.append(on_shutdown)
-
-    SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path="/webhook")
-
-    setup_application(app, dp, bot=bot)
-
-    return app
+@dp.message_handler(content_types=types.ContentType.DOCUMENT)
+async def handle_file(message: types.Message):
+    document = message.document
+    await message.reply(f"فایل {document.file_name} دریافت شد!")
 
 if __name__ == "__main__":
-    web.run_app(main(), host="0.0.0.0", port=10000)
+    executor.start_polling(dp, skip_updates=True)
