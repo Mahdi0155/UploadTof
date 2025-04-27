@@ -5,6 +5,9 @@ from utils.check_user import is_user_in_channel
 
 class CheckSubscriptionMiddleware(BaseMiddleware):
     async def __call__(self, handler, event: Message, data: dict):
+        if not hasattr(event, 'from_user') or event.from_user is None:
+            return await handler(event, data)
+
         if not REQUIRED_CHANNELS:
             return await handler(event, data)
 
