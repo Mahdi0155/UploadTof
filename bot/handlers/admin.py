@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import Message
 from config import OWNER_ID
-from bot.keyboards.admin_panel import admin_main_menu
+from bot.keyboards.admin_keyboards import admin_main_menu
 from database.manage_admins import add_admin, is_owner
 
 router = Router()
