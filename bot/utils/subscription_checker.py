@@ -1,13 +1,15 @@
 from config import REQUIRED_CHANNELS
-from bot.utils.check_user import is_user_in_channel
+from aiogram import Bot
 
-async def is_subscribed(user_id):
-    from bot.main import bot  # دقت کن اینو اضافه میکنیم
-
+async def is_subscribed(user_id: int, bot: Bot) -> bool:
     if not REQUIRED_CHANNELS:
         return True
 
     for channel_id in REQUIRED_CHANNELS:
-        if not await is_user_in_channel(bot, user_id, channel_id):
+        try:
+            member = await bot.get_chat_member(channel_id, user_id)
+            if member.status not in ("member", "creator", "administrator"):
+                return False
+        except Exception:
             return False
     return True
